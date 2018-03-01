@@ -407,6 +407,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 			println("Results will be saved into ",out_dir," folder")
 		end
 	end
+	index_node_obs = Any[]
 	if typeof(obs_node) <: Vector
 		length(obs_node)!=0 || error("You must enter at least 1 node id or index")
 		index_node_obs = typeof(obs_node)<:Vector{Int}? obs_node :  collect(findfirst(sigma->sigma.id==x,net.nodes) for x in obs_node)
