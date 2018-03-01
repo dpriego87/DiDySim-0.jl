@@ -490,7 +490,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result)
 				for (fi,obs_i) in enumerate(index_node_obs)
 					write(f[fi],map(Int8,sim_result[obs_i,:]'))
-					seek(f[fi],-1)
+		#			seek(f[fi],-1)
 				end
 				#push!(obs,sim_result[index_node_obs,:]...)
 				i += 1
@@ -501,8 +501,8 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 			nrand_init = i
 		end
 		status_files = zeros(Int,length_obs)
-		for (fn,fi) in enumerate(f)
-			status_files[fn] = close(fi)
+		for (fi,sigma_i) in enumerate(index_node_obs)
+			status_files[fi] = close(f[fi])
 		end
 		if isempty(find(status_files))
 			println("Simulations were succesfully stored for nodes ", join(obs_node,", "," and "))
