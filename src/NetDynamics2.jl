@@ -502,10 +502,10 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		for (fn,fi) in enumerate(f)
 			status_files[fn] = close(fi)
 		end
-		if isempty(find(status_file))
+		if isempty(find(status_files))
 			println("Simulations were succesfully stored for nodes ",obs_node)
 		else
-			println("Simulations couldn't be stored for nodes ",obs_node[find(status_file)])
+			println("Simulations couldn't be stored for nodes ",obs_node[find(status_files)])
 		end
 		return status_files
 	else
