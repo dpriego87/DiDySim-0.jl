@@ -444,7 +444,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		println("Succesfully created files for storing simulations")
 		for (i,sigma_i) in enumerate(index_node_obs)
 			filename = joinpath(out_dir,join([join([join([net.nodes[sigma_i].id,"T$t_size","r$nrand_init"],"_"),file_tag],""),"dat","gz"],"."))
-			f[i] = GZip.open(filename,"a")
+			f[i] = GZip.open(filename,"a+")
 		end
 		if nrand_init<state_space_size
 			while i < nrand_init
