@@ -404,7 +404,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 			error(out_dir, " must be empty to save results")
 		else
 			dump_to_file = true
-			println("Results are goinna being saved into ",out_dir," folder")
+			println("Results will be saved into ",out_dir," folder")
 		end
 	end
 	if typeof(obs_node) <: Vector
