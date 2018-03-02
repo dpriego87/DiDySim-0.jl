@@ -452,7 +452,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				rand_init_net!(net;update_mode=update_mode,init_h=init_h,init_constraints...)
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim=sim_result,noise_vector=noise_vector,forcing_rhythms=forcing_rhythms)
 				for (fi,obs_i) in enumerate(index_node_obs)
-					write(f[fi],map(Int8,sim_result[obs_i,:]'))
+					write(f[fi],map(Int8,sim_result[obs_i,:]))
 					# seek(f[fi],-1)
 				end
 				i += 1
