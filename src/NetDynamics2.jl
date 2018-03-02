@@ -452,7 +452,8 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim=sim_result,noise_vector=noise_vector,forcing_rhythms=forcing_rhythms)
 				println("r=$i: ")
 				for (fi,obs_i) in enumerate(index_node_obs)
-					nbytes = write(f[fi],map(Int8,sim_result[obs_i,:])'...)
+					#nbytes = write(f[fi],map(Int8,sim_result[obs_i,:])'...)
+					nbytes = writedlm(f[fi],map(Int8,sim_result[obs_i,:])'...)
 					println(obs_i," ",nbytes)
 				end
 				i += 1
@@ -490,7 +491,8 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				init_net!(net;update_mode=update_mode,init_h=init_h,init_array=collect(leave))
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result)
 				for (fi,obs_i) in enumerate(index_node_obs)
-					write(f[fi],map(Int8,sim_result[obs_i,:])'...)
+					# write(f[fi],map(Int8,sim_result[obs_i,:])'...)
+					nbytes = writedlm(f[fi],map(Int8,sim_result[obs_i,:])'...)
 				end
 				#push!(obs,sim_result[index_node_obs,:]...)
 				i += 1
