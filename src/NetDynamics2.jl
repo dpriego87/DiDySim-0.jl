@@ -440,7 +440,6 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		for (i,sigma_i) in enumerate(index_node_obs)
 			filename = joinpath(out_dir,join([join([join([net.nodes[sigma_i].id,"T$t_size","r$nrand_init"],"_"),file_tag],""),"bin","gz"],"."))
 			f[i] = GZip.open(filename,"a")
-			# close(f[i])
 		end
 		println("Succesfully created files for storing simulations")
 		# for (i,sigma_i) in enumerate(index_node_obs)
@@ -490,7 +489,6 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result)
 				for (fi,obs_i) in enumerate(index_node_obs)
 					write(f[fi],map(Int8,sim_result[obs_i,:]'))
-		#			seek(f[fi],-1)
 				end
 				#push!(obs,sim_result[index_node_obs,:]...)
 				i += 1
