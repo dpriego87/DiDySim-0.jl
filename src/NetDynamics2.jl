@@ -453,7 +453,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				println("r=$i: ")
 				for (fi,obs_i) in enumerate(index_node_obs)
 					nbytes = write(f[fi],map(Int8,sim_result[obs_i,:])'...)
-					println(obs_id," ",nbytes)
+					println(obs_i," ",nbytes)
 				end
 				i += 1
 				if mod(i,10000)==0
