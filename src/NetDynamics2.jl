@@ -429,7 +429,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
         println("Oversampling error: Random initial conditions bigger than possible number of configurations")
     end
 	println("Calculating ",length_obs >=2 ? join((sigma.id for sigma in net.nodes[index_node_obs]),',') : net.nodes[index_node_obs].id ," dynamics over $nrand_init random initial conditions")
-	i = 0
+	r = 0
 	hist_size = 1 + (update_mode == :sy ? 0 : maximum(net.in_taus))
 	t_size = steps+hist_size
 	sim_result = Array{T,2}(Nsize,t_size)
@@ -447,18 +447,18 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		# 	f[i] = GZip.open(filename,"a")
 		# end
 		if nrand_init<state_space_size
-			while i < nrand_init
+			while r < nrand_init
 				rand_init_net!(net;update_mode=update_mode,init_h=init_h,init_constraints...)
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim=sim_result,noise_vector=noise_vector,forcing_rhythms=forcing_rhythms)
-				println("r=$i: ")
+				# nbytes = Int[]
 				for (fi,obs_i) in enumerate(index_node_obs)
-					#nbytes = write(f[fi],map(Int8,sim_result[obs_i,:])'...)
-					nbytes = writedlm(f[fi],map(Int8,sim_result[obs_i,:])'...,',')
-					println(obs_i," ",nbytes)
+					#push!(nbytes,write(f[fi],map(Int8,sim_result[obs_i,:])))
+					writedlm(f[fi],map(Int8,sim_result[obs_i,:])',',')
 				end
-				i += 1
-				if mod(i,10000)==0
-					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*i/nrand_init, i, nrand_init)
+				#println(nbytes," written")
+				r += 1
+				if mod(r,round(Int,nrand_init/10))==0
+					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*r/nrand_init, r, nrand_init)
 				end
 			end
 		else
@@ -492,15 +492,15 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result)
 				for (fi,obs_i) in enumerate(index_node_obs)
 					# write(f[fi],map(Int8,sim_result[obs_i,:])'...)
-					nbytes = writedlm(f[fi],map(Int8,sim_result[obs_i,:])'...,',')
+					writedlm(f[fi],map(Int8,sim_result[obs_i,:])',',')
 				end
 				#push!(obs,sim_result[index_node_obs,:]...)
-				i += 1
-				if mod(i,10000)==0
-					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*i/nrand_init, i, nrand_init)
+				r += 1
+				if mod(r,round(Int,nrand_init/10))==0
+					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*r/nrand_init, r, nrand_init)
 				end
 			end
-			nrand_init = i
+			nrand_init = r
 		end
 		status_files = zeros(Int,length_obs)
 		for (fi,sigma_i) in enumerate(index_node_obs)
@@ -514,7 +514,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		return status_files
 	else
 		if nrand_init<state_space_size
-			while i < nrand_init
+			while r < nrand_init
 				rand_init_net!(net;update_mode=update_mode,init_h=init_h,init_constraints...)
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim=sim_result,noise_vector=noise_vector,forcing_rhythms=forcing_rhythms)
 				if length_obs==1
@@ -522,9 +522,9 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				else
 					push!(obs,(tuple(sim_result[index_node_obs,ti]...) for ti in 1:t_size)...)
 				end
-				i += 1
-				if mod(i,10000)==0
-					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*i/nrand_init, i, nrand_init)
+				r += 1
+				if mod(r,round(Int,nrand_init/10))==0
+					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*r/nrand_init, r, nrand_init)
 				end
 			end
 		else
@@ -562,12 +562,12 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 					push!(obs,(tuple(sim_result[index_node_obs,ti]...) for ti in 1:t_size)...)
 				end
 				#push!(obs,sim_result[index_node_obs,:]...)
-				i += 1
-				if mod(i,10000)==0
-					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*i/nrand_init, i, nrand_init)
+				r += 1
+				if mod(r,round(Int,nrand_init/10))==0
+					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*r/nrand_init, r, nrand_init)
 				end
 			end
-			nrand_init = i
+			nrand_init = r
 		end
 		return reshape(obs,round(Int,length(obs)/nrand_init),nrand_init)
 	end
