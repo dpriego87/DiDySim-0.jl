@@ -460,7 +460,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				# end
 				for (fi,sigma_i) in enumerate(index_node_obs)
 					f = GZip.open(filenames[fi],"a")
-					write(f,map(Int8,sim_result[obs_i,:])')
+					write(f,map(Int8,sim_result[sigma_i,:])')
 					close(f)
 				end
 				#println(nbytes," written")
