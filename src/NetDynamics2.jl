@@ -436,10 +436,13 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 	sigma_ext_forcing = collect(sigma_symbol=>rhythm_values[2] for (sigma_symbol,rhythm_values) in forcing_rhythms)
 	init_constraints = vcat(init_constraints,sigma_ext_forcing)
 	if dump_to_file
-		f = Vector{GZip.GZipStream}(length_obs)
-		for (i,sigma_i) in enumerate(index_node_obs)
-			filename = joinpath(out_dir,join([join([join([net.nodes[sigma_i].id,"T$t_size","r$nrand_init"],"_"),file_tag],""),"dat","gz"],"."))
-			f[i] = GZip.open(filename,"a")
+		#f = Vector{GZip.GZipStream}(length_obs)
+		filenames = String[]
+		for sigma_i in index_node_obs
+			push!(filenames,joinpath(out_dir,join([join([join([net.nodes[sigma_i].id,"T$t_size","r$nrand_init"],"_"),file_tag],""),"bin","gz"],".")))
+			# f[i] = GZip.open(filename,"w")
+			f = GZip.open(filename[end],"w")
+			close(f)
 		end
 		println("Succesfully created files for storing simulations")
 		# for (i,sigma_i) in enumerate(index_node_obs)
@@ -451,9 +454,14 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				rand_init_net!(net;update_mode=update_mode,init_h=init_h,init_constraints...)
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim=sim_result,noise_vector=noise_vector,forcing_rhythms=forcing_rhythms)
 				# nbytes = Int[]
-				for (fi,obs_i) in enumerate(index_node_obs)
-					#push!(nbytes,write(f[fi],map(Int8,sim_result[obs_i,:])))
-					writedlm(f[fi],map(Int8,sim_result[obs_i,:])',',')
+				# for (fi,obs_i) in enumerate(index_node_obs)
+				# 	#push!(nbytes,write(f[fi],map(Int8,sim_result[obs_i,:])))
+				# 	writedlm(f[fi],map(Int8,sim_result[obs_i,:])',',')
+				# end
+				for (fi,sigma_i) in enumerate(index_node_obs)
+					f = GZip.open(filenames[fi],"a")
+					write(f],map(Int8,sim_result[obs_i,:])')
+					close(f)
 				end
 				#println(nbytes," written")
 				r += 1
