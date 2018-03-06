@@ -510,16 +510,16 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 			end
 			nrand_init = r
 		end
-		status_files = zeros(Int,length_obs)
-		for (fi,sigma_i) in enumerate(index_node_obs)
-			status_files[fi] = close(f[fi])
-		end
-		if isempty(find(status_files))
-			println("Simulations were succesfully stored for nodes ", join(obs_node,", "," and "))
-		else
-			println("Simulations couldn't be stored for nodes ", join(obs_node[find(status_files)],", "," nor "))
-		end
-		return status_files
+		# status_files = zeros(Int,length_obs)
+		# for (fi,sigma_i) in enumerate(index_node_obs)
+		# 	status_files[fi] = close(f[fi])
+		# end
+		# if isempty(find(status_files))
+		# 	println("Simulations were succesfully stored for nodes ", join(obs_node,", "," and "))
+		# else
+		# 	println("Simulations couldn't be stored for nodes ", join(obs_node[find(status_files)],", "," nor "))
+		# end
+		# return status_files
 	else
 		if nrand_init<state_space_size
 			while r < nrand_init
