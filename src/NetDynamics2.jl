@@ -459,9 +459,10 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				# 	writedlm(f[fi],map(Int8,sim_result[obs_i,:])',',')
 				# end
 				for (fi,sigma_i) in enumerate(index_node_obs)
-					f = GZip.open(filenames[fi],"a")
-					write(f,sim_result[sigma_i,:])
-					close(f)
+					GZip.open(filenames[fi],"a") do filex
+						write(filex,sim_result[sigma_i,:])
+					end
+					# close(f)
 				end
 				#println(nbytes," written")
 				r += 1
@@ -498,11 +499,12 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 			for leave in itstspace
 				init_net!(net;update_mode=update_mode,init_h=init_h,init_array=collect(leave))
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result)
-				for (fi,obs_i) in enumerate(index_node_obs)
-					# write(f[fi],map(Int8,sim_result[obs_i,:])'...)
-					writedlm(f[fi],sim_result[obs_i,:],',')
+				for (fi,sigma_i) in enumerate(index_node_obs)
+					GZip.open(filenames[fi],"a") do filex
+						write(filex,sim_result[sigma_i,:])
+					end
+					# close(f)
 				end
-				#push!(obs,sim_result[index_node_obs,:]...)
 				r += 1
 				if mod(r,round(Int,nrand_init/10))==0
 					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*r/nrand_init, r, nrand_init)
