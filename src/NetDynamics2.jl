@@ -460,7 +460,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				# end
 				for (fi,sigma_i) in enumerate(index_node_obs)
 					f = GZip.open(filenames[fi],"a")
-					write(f,map(Int8,sim_result[sigma_i,:]))
+					write(f,sim_result[sigma_i,:])
 					close(f)
 				end
 				#println(nbytes," written")
@@ -500,7 +500,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result)
 				for (fi,obs_i) in enumerate(index_node_obs)
 					# write(f[fi],map(Int8,sim_result[obs_i,:])'...)
-					writedlm(f[fi],map(Int8,sim_result[obs_i,:])',',')
+					writedlm(f[fi],sim_result[obs_i,:],',')
 				end
 				#push!(obs,sim_result[index_node_obs,:]...)
 				r += 1
