@@ -119,7 +119,6 @@ function rand_init_net!(net::Net2,node_indices::Vector{Int}=collect(vertices(net
 			net.sim_buffer[nsigma,end] = length(state)>1 ? rand(state) : state[1]
 		end
 	end
-	net.sim_buffer[node_indices,end] = [rand(sigma.state_range) for sigma in net.nodes[node_indices]]
 	if max_buffer_tlength > 1
 		if init_h==:default
 			for ni in vcat(node_indices,nodes_to_constraint)
@@ -136,6 +135,7 @@ function rand_init_net!(net::Net2,node_indices::Vector{Int}=collect(vertices(net
 			error("Invalid initialization flag. Available options are\n:default for default, :rand for random")
 		end
 	end
+	net.sim_buffer[node_indices,end] = [rand(sigma.state_range) for sigma in net.nodes[node_indices]]
 	in_state_vals = nonzeros(net.in_states)
 	nsigma_ins = rowvals(net.in_states)
 	# tau_vals = nonzeros(net.in_taus)
@@ -400,8 +400,6 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 	if out_dir != ""
 		if !isdir(out_dir)
 			error(out_dir, " is not a valid directory to save results")
-		elseif !isempty(readdir(out_dir))
-			error(out_dir, " must be empty to save results")
 		else
 			dump_to_file = true
 			println("Results will be saved into ",out_dir," folder")
@@ -434,7 +432,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 	t_size = steps+hist_size
 	sim_result = Array{T,2}(Nsize,t_size)
 	sigma_ext_forcing = collect(sigma_symbol=>rhythm_values[2] for (sigma_symbol,rhythm_values) in forcing_rhythms)
-	init_constraints = vcat(init_constraints,sigma_ext_forcing)
+	# init_constraints = vcat(init_constraints,sigma_ext_forcing)
 	if dump_to_file
 		#f = Vector{GZip.GZipStream}(length_obs)
 		filenames = String[]
