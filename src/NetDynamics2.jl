@@ -466,7 +466,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				end
 				#println(nbytes," written")
 				r += 1
-				if mod(r,round(Int,nrand_init/10))==0
+				if nrand_init >= 10 && mod(r,round(Int,nrand_init/10))==0
 					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*r/nrand_init, r, nrand_init)
 				end
 			end
@@ -506,7 +506,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 					# close(f)
 				end
 				r += 1
-				if mod(r,round(Int,nrand_init/10))==0
+				if nrand_init>=10 && mod(r,round(Int,nrand_init/10))==0
 					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*r/nrand_init, r, nrand_init)
 				end
 			end
@@ -533,7 +533,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 					push!(obs,(tuple(sim_result[index_node_obs,ti]...) for ti in 1:t_size)...)
 				end
 				r += 1
-				if mod(r,round(Int,nrand_init/10))==0
+				if nrand_init>=10 && mod(r,round(Int,nrand_init/10))==0
 					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*r/nrand_init, r, nrand_init)
 				end
 			end
@@ -573,7 +573,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				end
 				#push!(obs,sim_result[index_node_obs,:]...)
 				r += 1
-				if mod(r,round(Int,nrand_init/10))==0
+				if nrand_init>=10 && mod(r,round(Int,nrand_init/10))==0
 					@printf("%0.2f%% progress, %d out of %d initial conditions explored\n", 100*r/nrand_init, r, nrand_init)
 				end
 			end
