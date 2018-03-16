@@ -552,7 +552,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				if node.id in init_constraints_lab
 					println(f,join(init_constraints_states[findfirst(x->x==node.id,init_constraints_lab)],","))
 				else
-					println(f,join(map(string,node.state_range),","))
+					println(f,join(node.state_range,","))
 				end
 			end
 		end
