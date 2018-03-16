@@ -402,8 +402,8 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 	dump_to_file = false
 	moment = now(Dates.UTC)
 	time_string = string(Dates.value(moment))
-	base_dir_tag = joinpath(base_dir,join([variant_name,file_tag,time_string],"_"))
-	results_dir = base_dir == "" ? "" : base_dir_tag
+	base_dir_tag = join([variant_name,file_tag,time_string],"_")
+	results_dir = joinpath(base_dir,base_dir_tag)
 	if base_dir != ""
 		if isdir(base_dir)
 			dump_to_file = true
