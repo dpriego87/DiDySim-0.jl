@@ -537,14 +537,14 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		# end
 		# return status_files
 		println("\nWriting metadata files")
-		open(joinpath(results_dir,"$results_dir.meta"), "w") do f
-			println(f, "Date = ",string(moment))
-			println(f, "umode = ",@umode_labesl()[update_mode])
-        	println(f, "t0 = ",1-hist_size)
-			println(f, "T = ",steps)
-			println(f, "tsize = ",hist_size + steps)
-			println(f, "r = ",nrand_init)
-			println(f, "\nSampling space of initial conditions")
+		open(joinpath(results_dir,"$base_dir_tag.meta"), "w") do f
+			println(f, "Date = ",string(moment)) # Univeral Time
+			println(f, "umode = ",@umode_labesl()[update_mode]) # tag for updating scheme used in the simulation
+        	println(f, "t0 = ",1-hist_size) # What time corresponds to first time instant, e.g. 1st column of array element corresponds to t=0 in synchronous update scheme
+			println(f, "T = ",steps) # Amount of iterations
+			println(f, "tsize = ",hist_size + steps) # Whole time series length
+			println(f, "r = ",nrand_init) # Total amount of realizations
+			println(f, "\nSampling space of initial conditions") # For each variable, it's sampling space is printed out
 			for node in net.nodes
 				print(f,node.id,"\t:\t")
 				if node.id in map(string,keys(init_constraints))
