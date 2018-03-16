@@ -401,7 +401,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 	Nsize = length(net.nodes)
 	dump_to_file = false
 	moment = now(Dates.UTC)
-	time_string = Dates.value(moment)
+	time_string = string(Dates.value(moment))
 	results_dir = base_dir == "" ? "" : joinpath(base_dir,join([variant_name,file_tag,time_string],"_"))
 	if base_dir != ""
 		if isdir(base_dir)
@@ -537,7 +537,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		# return status_files
 		println("\nWriting metadata files")
 		open(joinpath(results_dir,"$results_dir.meta"), "w") do f
-			write(f, "Date = ",moment)
+			write(f, "Date = ",string(moment))
 			write(f, "umode = ",@umode_labesl()[update_mode],"\n")
         	write(f, "t0 = ",1-hist_size,"\n")
 			write(f, "T = ",steps,"\n")
