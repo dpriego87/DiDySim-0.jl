@@ -400,7 +400,9 @@ end
 function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{AbstractString,Int,Vector{String},Vector{Int}},nrand_init::Int=prod(length(sigma.state_range) for sigma in net.nodes);base_dir::AbstractString="",variant_name::AbstractString="",file_tag::AbstractString="",update_mode::Symbol=:sy,noise_vector::Vector{Pair{Symbol,Float64}}=Pair{Symbol,Float64}[],init_h::Symbol=:default,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...)
 	Nsize = length(net.nodes)
 	dump_to_file = false
-	results_dir = base_dir == "" ? "" : joinpath(base_dir,join([variant_name,file_tag],"_"))
+	moment = now(Dates.UTC)
+	time_string = Dates.value(moment)
+	results_dir = base_dir == "" ? "" : joinpath(base_dir,join([variant_name,file_tag,time_string],"_"))
 	if base_dir != ""
 		if isdir(base_dir)
 			dump_to_file = true
@@ -535,6 +537,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		# return status_files
 		println("\nWriting metadata files")
 		open(joinpath(results_dir,"$results_dir.meta"), "w") do f
+			write(f, "Date = ",moment)
 			write(f, "umode = ",@umode_labesl()[update_mode],"\n")
         	write(f, "t0 = ",1-hist_size,"\n")
 			write(f, "T = ",steps,"\n")
