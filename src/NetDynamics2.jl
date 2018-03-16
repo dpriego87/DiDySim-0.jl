@@ -545,10 +545,12 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 			println(f, "tsize = ",hist_size + steps) # Whole time series length
 			println(f, "r = ",nrand_init) # Total amount of realizations
 			println(f, "\nSampling space of initial conditions") # For each variable, it's sampling space is printed out
+			init_constraints_lab = [string(nsymbol) for (nsymbol,nvals) in init_constraints]
+			init_constraints_states = [nvals for (nsymbol,nvals) in init_constraints]
 			for node in net.nodes
 				print(f,node.id,"\t:\t")
-				if node.id in map(string,keys(init_constraints))
-					println(f,join(map(string,init_pair[2]),","))
+				if node.id in init_constraints_lab
+					println(f,join(init_constraints_states[findfirst(x->x==node.id,init_constraints_lab)],","))
 				else
 					println(f,join(map(string,node.state_range),","))
 				end
