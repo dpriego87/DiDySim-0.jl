@@ -537,7 +537,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		# end
 		# return status_files
 		println("\nWriting metadata files")
-		open(joinpath(results_dir,"$base_dir_tag.meta"), "w") do f
+		open(joinpath(results_dir,join([base_dir_tag,"meta"],".")), "w") do f
 			println(f, "Date = ",string(moment)) # Univeral Time
 			println(f, "umode = ",@umode_labesl()[update_mode]) # tag for updating scheme used in the simulation
         	println(f, "t0 = ",1-hist_size) # What time corresponds to first time instant, e.g. 1st column of array element corresponds to t=0 in synchronous update scheme
