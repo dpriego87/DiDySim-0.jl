@@ -397,7 +397,7 @@ function smoothed_strob!(net::Net2,sim::sim_type,steps::Int,i_t0::Int,t_init::In
 	return nothing
 end
 
-function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{AbstractString,Int,Vector{String},Vector{Int}},nrand_init::Int=prod(length(sigma.state_range) for sigma in net.nodes);base_dir::AbstractString="",variant_name::AbstractString="",file_tag::AbstractString="",update_mode::Symbol=:sy,noise_vector::Vector{Pair{Symbol,Float64}}=Pair{Symbol,Float64}[],init_h::Symbol=:default,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...)
+function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{AbstractString,Int,Vector{String},Vector{Int}},nrand_init::Int=prod(length(sigma.state_range) for sigma in net.nodes);base_dir::String="",variant_name::String="",file_tag::String="",update_mode::Symbol=:sy,noise_vector::Vector{Pair{Symbol,Float64}}=Pair{Symbol,Float64}[],init_h::Symbol=:default,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...)
 	Nsize = length(net.nodes)
 	dump_to_file = false
 	moment = now(Dates.UTC)
