@@ -1,5 +1,8 @@
 using StatsBase
 using GZip
+macro umode_labesl()
+	:(Dict(:sy=>"sync",:fd=>"delay",:md=>"mean_delay",:sd=>"strob",:smd=>"strob_delay",:ga=>"general_async",:roa=>"random_order_async",:ssy=>"semi_sync"))
+end
 
 macro update_schemes()
 	:(Dict(:sy=>:sy,:fd=>fixed_delay!,:md=>smoothed_fixed_delay!,:st=>strob!,:mst=>smoothed_strob!,:ga=>:ga,:roa=>:roa,:ssy=>semi_sync!))
@@ -394,15 +397,22 @@ function smoothed_strob!(net::Net2,sim::sim_type,steps::Int,i_t0::Int,t_init::In
 	return nothing
 end
 
-function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{AbstractString,Int,Vector{String},Vector{Int}},nrand_init::Int=prod(length(sigma.state_range) for sigma in net.nodes);out_dir::AbstractString="",file_tag::AbstractString="",update_mode::Symbol=:sy,noise_vector::Vector{Pair{Symbol,Float64}}=Pair{Symbol,Float64}[],init_h::Symbol=:default,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...)
+function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{AbstractString,Int,Vector{String},Vector{Int}},nrand_init::Int=prod(length(sigma.state_range) for sigma in net.nodes);base_dir::AbstractString="",variant_name::AbstractString="",file_tag::AbstractString="",update_mode::Symbol=:sy,noise_vector::Vector{Pair{Symbol,Float64}}=Pair{Symbol,Float64}[],init_h::Symbol=:default,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...)
 	Nsize = length(net.nodes)
 	dump_to_file = false
-	if out_dir != ""
-		if !isdir(out_dir)
-			error(out_dir, " is not a valid directory to save results")
-		else
+	results_dir = base_dir == "" ? "" : joinpath(base_dir,join([variant_name,file_tag],"_"))
+	if base_dir != ""
+		if isdir(base_dir)
 			dump_to_file = true
-			println("Results will be saved into ",out_dir," folder")
+			if isdir(results_dir)
+				println("Resuls will be overwritten onto ")
+			else
+				mkpath(results_dir)
+				println("Resuls will be saved into ")
+			end
+			println(results_dir," folder")
+		else
+			error(base_dir, " is not a valid directory to save s")
 		end
 	end
 	index_node_obs = Any[]
@@ -436,15 +446,18 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 	if dump_to_file
 		#f = Vector{GZip.GZipStream}(length_obs)
 		filenames = String[]
+		raw_dir = joinpath(results_dir,"raw")
+		isdir(raw_dir) || mkpath(raw_dir)
 		for sigma_i in index_node_obs
-			push!(filenames,joinpath(out_dir,join([join([join([net.nodes[sigma_i].id,"T$t_size","r$nrand_init"],"_"),file_tag],""),"bin","gz"],".")))
+			# push!(filenames,joinpath(results_dir,join([join([net.nodes[sigma_i].id,"T$t_size","r$nrand_init"],"_"),"bin","gz"],".")))
+			push!(filenames,joinpath(raw_dir,join([net.nodes[sigma_i].id],"bin","gz"],".")))
 			# f[i] = GZip.open(filename,"w")
 			f = GZip.open(filenames[end],"w")
 			close(f)
 		end
 		println("Succesfully created files for storing simulations")
 		# for (i,sigma_i) in enumerate(index_node_obs)
-		# 	filename = joinpath(out_dir,join([join([join([net.nodes[sigma_i].id,"T$t_size","r$nrand_init"],"_"),file_tag],""),"dat","gz"],"."))
+		# 	filename = joinpath(results_dir,join([join([join([net.nodes[sigma_i].id,"T$t_size","r$nrand_init"],"_"),file_tag],""),"dat","gz"],"."))
 		# 	f[i] = GZip.open(filename,"a")
 		# end
 		if nrand_init<state_space_size
@@ -496,7 +509,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 			itstspace = product(ranges...)
 			for leave in itstspace
 				init_net!(net;update_mode=update_mode,init_h=init_h,init_array=collect(leave))
-				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result)
+				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result,noise_vector=noise_vector,forcing_rhythms=forcing_rhythms)
 				for (fi,sigma_i) in enumerate(index_node_obs)
 					GZip.open(filenames[fi],"a") do filex
 						write(filex,sim_result[sigma_i,:])
@@ -520,6 +533,24 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		# 	println("Simulations couldn't be stored for nodes ", join(obs_node[find(status_files)],", "," nor "))
 		# end
 		# return status_files
+		println("\nWriting metadata files")
+		open(joinpath(results_dir,"$results_dir.meta"), "w") do f
+			write(f, "umode = ",@umode_labesl()[update_mode],"\n")
+        	write(f, "t0 = ",1-hist_size,"\n")
+			write(f, "T = ",steps,"\n")
+			write(f, "tsize = ",hist_size + steps,"\n")
+			write(f, "r = ",nrand_init,"\n")
+			write(f, "\nSampling space of initial conditions\n")
+			for node in net.nodes
+				write(f,string(init_pair[1]),":","\t")
+				if node.id in keys(init_constraints)
+					write(f,join(map(string,init_pair[2]),","),"\t")
+				else
+					write(f,join(map(string,node.state_range),","),":","\t")
+				end
+			end
+		end
+		return nothing
 	else
 		if nrand_init<state_space_size
 			while r < nrand_init
@@ -563,7 +594,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 			itstspace = product(ranges...)
 			for leave in itstspace
 				init_net!(net;update_mode=update_mode,init_h=init_h,init_array=collect(leave))
-				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result)
+				evolve_net!(net,steps;keep=false,update_mode=update_mode,sim_result=sim_result,noise_vector=noise_vector,forcing_rhythms=forcing_rhythms)
 				if length_obs==1
 					push!(obs,sim_result[index_node_obs,:]...)
 				else
