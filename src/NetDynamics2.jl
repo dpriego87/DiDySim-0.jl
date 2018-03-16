@@ -450,7 +450,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		isdir(raw_dir) || mkpath(raw_dir)
 		for sigma_i in index_node_obs
 			# push!(filenames,joinpath(results_dir,join([join([net.nodes[sigma_i].id,"T$t_size","r$nrand_init"],"_"),"bin","gz"],".")))
-			push!(filenames,joinpath(raw_dir,join([net.nodes[sigma_i].id],"bin","gz"],".")))
+			push!(filenames,joinpath(raw_dir,join([net.nodes[sigma_i].id,"bin","gz"],".")))
 			# f[i] = GZip.open(filename,"w")
 			f = GZip.open(filenames[end],"w")
 			close(f)
