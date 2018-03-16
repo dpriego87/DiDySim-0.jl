@@ -545,7 +545,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 			println(f, "r = ",nrand_init)
 			println(f, "\nSampling space of initial conditions")
 			for node in net.nodes
-				print(f,node.id),"\t:\t")
+				print(f,node.id,"\t:\t")
 				if node.id in map(string,keys(init_constraints))
 					println(f,join(map(string,init_pair[2]),","))
 				else
