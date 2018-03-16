@@ -537,19 +537,19 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 		# return status_files
 		println("\nWriting metadata files")
 		open(joinpath(results_dir,"$results_dir.meta"), "w") do f
-			write(f, "Date = ",string(moment))
-			write(f, "umode = ",@umode_labesl()[update_mode],"\n")
-        	write(f, "t0 = ",1-hist_size,"\n")
-			write(f, "T = ",steps,"\n")
-			write(f, "tsize = ",hist_size + steps,"\n")
-			write(f, "r = ",nrand_init,"\n")
-			write(f, "\nSampling space of initial conditions\n")
+			println(f, "Date = ",string(moment))
+			println(f, "umode = ",@umode_labesl()[update_mode])
+        	println(f, "t0 = ",1-hist_size)
+			println(f, "T = ",steps)
+			println(f, "tsize = ",hist_size + steps)
+			println(f, "r = ",nrand_init)
+			println(f, "\nSampling space of initial conditions")
 			for node in net.nodes
-				write(f,string(init_pair[1]),":","\t")
-				if node.id in keys(init_constraints)
-					write(f,join(map(string,init_pair[2]),","),"\t")
+				print(f,node.id),"\t:\t")
+				if node.id in map(string,keys(init_constraints))
+					println(f,join(map(string,init_pair[2]),","))
 				else
-					write(f,join(map(string,node.state_range),","),":","\t")
+					println(f,join(map(string,node.state_range),","))
 				end
 			end
 		end
