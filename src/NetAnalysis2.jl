@@ -630,6 +630,7 @@ function read_metadata(filepath::AbstractString,pars::Vector{Symbol})
         end
     end
     if all(param_found)
+        println("\nSucessfully read parameters",pars)
         return par_dict
     else
         return nothing
