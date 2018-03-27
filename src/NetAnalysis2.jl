@@ -612,9 +612,9 @@ function find_attractor2!{T<:state_type}(net::Net2{T},max_steps::Integer,nrand_i
 end
 
 function read_metadata(filepath::AbstractString,pars::Vector{Symbol})
+    param_found = falses(length(pars))
     if isfile(metafilepath)
 		println("\nLoading metafile ",metafile)
-        param_found = falses(length(pars))
         par_dict = Dict(map(x->x=>0),pars)
 		open(metafilepath,"r") do f
 			for l in eachline(f)
@@ -628,9 +628,9 @@ function read_metadata(filepath::AbstractString,pars::Vector{Symbol})
                 end
             end
         end
-        if all(param_found)
-            return par_dict
-        end
+    end
+    if all(param_found)
+        return par_dict
     else
         return nothing
     end
