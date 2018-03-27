@@ -619,6 +619,7 @@ function read_metadata(filepath::AbstractString,pars::Vector{Symbol})
 		open(filepath,"r") do f
 			for l in eachline(f)
                 for (pi,p) in enumerate(pars)
+                    println(Regex("^$p = \d+"))
 				    if ismatch(Regex("^$p = \d+"),l)
                         m = match(r"\d+",l)
                         par_dict[p] = parse(Int,m.match)
