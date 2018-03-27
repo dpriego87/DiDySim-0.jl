@@ -615,7 +615,7 @@ function read_metadata(filepath::AbstractString,pars::Vector{Symbol})
     param_found = falses(length(pars))
     if isfile(filepath)
 		println("\nLoading metafile ",filepath)
-        par_dict = Dict(map(x->x=>0),pars)
+        par_dict = Dict(map(x->x=>0,pars))
 		open(filepath,"r") do f
 			for l in eachline(f)
                 for (pi,p) in enumerate(pars)
