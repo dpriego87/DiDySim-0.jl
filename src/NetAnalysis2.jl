@@ -613,10 +613,10 @@ end
 
 function read_metadata(filepath::AbstractString,pars::Vector{Symbol})
     param_found = falses(length(pars))
-    if isfile(metafilepath)
-		println("\nLoading metafile ",metafile)
+    if isfile(filepath)
+		println("\nLoading metafile ",filepath)
         par_dict = Dict(map(x->x=>0),pars)
-		open(metafilepath,"r") do f
+		open(filepath,"r") do f
 			for l in eachline(f)
                 for (pi,p) in enumerate(pars)
 				    if ismatch(Regex("^$p = \d+",l))
