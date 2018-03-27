@@ -619,12 +619,13 @@ function read_metadata(filepath::AbstractString,pars::Vector{Symbol})
 		open(metafilepath,"r") do f
 			for l in eachline(f)
                 for (pi,p) in enumerate(pars)
-				if ismatch(Regex("^$p = \d+",l))
-                    m = match(r"\d+",l)
-					par_dict[p] = parse(Int,m.match)
-					param_found[pi] = true
+				    if ismatch(Regex("^$p = \d+",l))
+                        m = match(r"\d+",l)
+                        par_dict[p] = parse(Int,m.match)
+                        param_found[pi] = true
+                    end
+                    !(all(param_found)) || break
                 end
-				!(all(param_found)) || break
             end
         end
         if all(param_found)
