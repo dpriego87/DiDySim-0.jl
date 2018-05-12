@@ -610,3 +610,29 @@ function find_attractor2!{T<:state_type}(net::Net2{T},max_steps::Integer,nrand_i
     println(unsuccess," unsuccessful tries after reaching maximmum time steps set")
     return att_list, transients
 end
+
+function read_metadata(filepath::AbstractString,pars::Vector{Symbol})
+    param_found = falses(length(pars))
+    if isfile(filepath)
+		println("\nLoading metafile ",filepath)
+        par_dict = Dict(map(x->x=>0,pars))
+		open(filepath,"r") do f
+			for l in eachline(f)
+                for (pi,p) in enumerate(pars)
+				    if ismatch(Regex("^$p = \\d+"),l)
+                        m = match(r"\d+",l)
+                        par_dict[p] = parse(Int,m.match)
+                        param_found[pi] = true
+                    end
+                    !(all(param_found)) || break
+                end
+            end
+        end
+    end
+    if all(param_found)
+        println("\nSucessfully read parameters ",join(map(string,pars),","))
+        return par_dict
+    else
+        return nothing
+    end
+end
