@@ -168,7 +168,7 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
         i = 0
         for leave in itstspace
             init_net!(net;update_mode=update_mode,init_array=round(Int,collect(leave)))
-            leave_tag = parse(Int,string(map(x->round(Int,x),leave)...),tag_base)
+            leave_tag = parse(Int,string(map(x->round.(Int,x),leave)...),tag_base)
             if !haskey(tags_nid,leave_tag)
                 add_vertex!(transition_graph)
                 i = nv(transition_graph)
