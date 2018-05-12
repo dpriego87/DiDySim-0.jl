@@ -145,10 +145,6 @@ end
 # each configuration
 
 function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString;trav::Symbol=:rw,update_mode::Symbol=:sy,max_traj::Integer=1 + (update_mode==:sy ? 0 : maximum(net.in_taus)))
-    if isfile(joinpath(out_dir,"$(root_name)_att_stats.txt"))
-        error("Previous analysis already existing. Please delete files to proceed.:",joinpath(out_dir,"$(root_name)_att_stats.txt"))
-        return nothing
-    end
     trav == :rw || trav == :l || error("Invalid option for traversal method")
     net_size = nv(net.graph)
     state_space_size = prod(length(sigma.state_range) for sigma in net.nodes)
