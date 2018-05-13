@@ -298,7 +298,7 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
     basin_node_list = weakly_connected_components(transition_graph)
     Natt = length(basin_node_list)
     println(Natt," attractors found")
-    sort!(basin_node_list,by=length,rev=true)
+    sort!(basin_node_list,by=length,rev=false)
     println("Saving individual basins")
     if !isdir(out_dir)
         mkpath(out_dir)
