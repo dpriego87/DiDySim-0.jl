@@ -2,5 +2,6 @@ julia 0.6
 IterTools
 StatsBase
 LightGraphs
+GraphIO
 GZip
 Formatting
