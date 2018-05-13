@@ -316,7 +316,7 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
     try
         for (bi,basin) in enumerate(basin_node_list)
             basin_tree_list[bi] = induced_subgraph(transition_graph,basin)[1]
-            println("Basin $bi has ",nv(basin_tree_list[bi]," space state size")
+            println("Basin $bi has ",nv(basin_tree_list[bi])," space state size")
             savegraph(joinpath(out_dir,"$(root_name)_att_$(bi).gml.gz"),basin_tree_list[bi],join([root_name, bi],"_"),:gml,compress = true)
             println("$(root_name)_att_$(bi) basin saved")
             if update_mode == :sy
