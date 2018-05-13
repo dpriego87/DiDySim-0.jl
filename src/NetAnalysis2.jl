@@ -176,7 +176,7 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
                 tags_nid[leave_tag] = i
             end
             shoot = evolve_net!(net,1;keep=false,update_mode=update_mode)
-            shoot_tag = parse(Int,string(round(Int,shoot)...),tag_base)
+            shoot_tag = parse(Int,string(round.(Int,shoot)...),tag_base)
             if !haskey(tags_nid,shoot_tag)
                 add_vertex!(transition_graph)
                 i = nv(transition_graph)
@@ -196,14 +196,14 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
         time_steps = 1
         sim_buffer = Array{Int8}(net_size,time_steps + net_hist_size)
         for (i,X) in enumerate(itstspace)
-            init_net!(net;init_h=:default,update_mode=update_mode,init_array=round(Int,collect(X)))
+            init_net!(net;init_h=:default,update_mode=update_mode,init_array=round.(Int,collect(X)))
             hX[:] = net.sim_buffer
             # for (nsigma,sigma) in enumerate(netstate)
             #     init_node!(sigma,X[nsigma])
             #     hX[nsigma,:] = sigma.state
             # end
             for t in 1:net_hist_size
-                hX_tag[t] = parse(Int,string(round(Int,hX[:,t])...),tag_base)
+                hX_tag[t] = parse(Int,string(round.(Int,hX[:,t])...),tag_base)
             end
             if !haskey(tags_nid,hX_tag)
                 add_vertex!(transition_graph)
@@ -217,7 +217,7 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
             for t in 1:max_traj
                 hXtp1[:] = evolve_net!(net,1,keep=false,update_mode=update_mode,sim=sim_buffer,t_init=t-1)
                 for ti in 1:net_hist_size
-                    hXtp1_tag[ti] = parse(Int,string(round(Int,hXtp1[:,ti])...),tag_base)
+                    hXtp1_tag[ti] = parse(Int,string(round.(Int,hXtp1[:,ti])...),tag_base)
                 end
                 # Xtp1_tag = parse(Int,string(round(Int,Xtp1)...),tag_base)
                 # push!(hXtp1_tag,Xtp1_tag)
@@ -245,14 +245,14 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
         time_steps = 1
         sim_buffer = Array{Int8}(net_size,time_steps + net_hist_size)
         for (i,X) in enumerate(itstspace)
-            init_net!(net;init_h=:default,update_mode=update_mode,init_array=round(Int,collect(X)))
+            init_net!(net;init_h=:default,update_mode=update_mode,init_array=round.(Int,collect(X)))
             hX[:] = net.sim_buffer
             # for (nsigma,sigma) in enumerate(netstate)
             #     init_node!(sigma,X[nsigma])
             #     hX[nsigma,:] = sigma.state
             # end
             for t in 1:net_hist_size
-                hX_tag[1+t] = parse(Int,string(round(Int,hX[:,t])...),tag_base)
+                hX_tag[1+t] = parse(Int,string(round.(Int,hX[:,t])...),tag_base)
             end
             hX_tag[1] = 0
             if !haskey(tags_nid,hX_tag)
@@ -268,7 +268,7 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
             for t in 1:max_traj
                 hXtp1[:] = evolve_net!(net,1,keep=false,update_mode=update_mode,sim=sim_buffer,t_init=t-1)
                 for ti in 1:net_hist_size
-                    hXtp1_tag[1+ti] = parse(Int,string(round(Int,hXtp1[:,ti])...),tag_base)
+                    hXtp1_tag[1+ti] = parse(Int,string(round.(Int,hXtp1[:,ti])...),tag_base)
                 end
                 hXtp1_tag[1] = mod(t,net_hist_size)
                 # Xtp1_tag = parse(Int,string(round(Int,Xtp1)...),tag_base)
@@ -316,7 +316,7 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
     try
         for (bi,basin) in enumerate(basin_node_list)
             basin_tree_list[bi] = induced_subgraph(transition_graph,basin)[1]
-            save(joinpath(out_dir,"$(root_name)_att_$(bi).gml.gz"),basin_tree_list[bi],join([root_name, bi],"_"),:gml,compress = true)
+            savegraph(joinpath(out_dir,"$(root_name)_att_$(bi).gml.gz"),basin_tree_list[bi],join([root_name, bi],"_"),:gml,compress = true)
             println("$(root_name)_att_$(bi) basin saved")
             if update_mode == :sy
                 writedlm(g,hcat(fill(bi,nv(basin_tree_list[bi])),nid_tags[basin]))
