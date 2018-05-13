@@ -1,4 +1,5 @@
 import GZip
+using GraphIO
 using StatsBase
 using IterTools
 using Combinatorics
