@@ -298,7 +298,7 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
     basin_node_list = weakly_connected_components(transition_graph)
     Natt = length(basin_node_list)
     println(Natt," attractors found")
-    sort!(basin_node_list,by=length,rev=false)
+    sort!(basin_node_list,by=length,rev=true)
     println("Saving individual basins")
     if !isdir(out_dir)
         mkpath(out_dir)
@@ -317,7 +317,7 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
         for (bi,basin) in enumerate(basin_node_list)
             basin_tree_list[bi] = induced_subgraph(transition_graph,basin)[1]
             println("Basin $bi has ",nv(basin_tree_list[bi])," space state size")
-            savegraph(joinpath(out_dir,"$(root_name)_att_$(bi).gml.gz"),basin_tree_list[bi],join([root_name, bi],"_"),:gml,compress = true)
+            savegraph(joinpath(out_dir,"$(root_name)_att_$(bi).gml.gz"),basin_tree_list[bi],join([root_name, bi],"_"),GMLFormat(),compress = true)
             println("$(root_name)_att_$(bi) basin saved")
             if update_mode == :sy
                 writedlm(g,hcat(fill(bi,nv(basin_tree_list[bi])),nid_tags[basin]))
