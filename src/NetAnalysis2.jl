@@ -312,8 +312,10 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
     patt_basins = Vector{Vector{Integer}}(Natt)
     branch_tree_list = Vector{Vector{LightGraphs.DiGraph}}(Natt)
     branch_patt = Vector{Vector{Integer}}(Natt)
+    g = GZip.open(joinpath(out_dir,"$(root_name)_att_tagging.dat.gz"),"w")
+    h = GZip.open(joinpath(out_dir,"$(root_name)_trans_dist.dat.gz"),"w")
     try
-        g = GZip.open(joinpath(out_dir,"$(root_name)_att_tagging.dat.gz"),"w")
+
         for (bi,basin) in enumerate(basin_node_list)
             basin_tree_list[bi] = induced_subgraph(transition_graph,basin)[1]
             println("Basin $bi has ",nv(basin_tree_list[bi])," space state size")
@@ -361,7 +363,6 @@ function get_basins!(net::Net2,out_dir::AbstractString,root_name::AbstractString
             end
         end
         basin_tree_list = Vector{LightGraphs.DiGraph}()
-        h = GZip.open(joinpath(out_dir,"$(root_name)_trans_dist.dat.gz"),"w")
         for (bi,basin_tree) in enumerate(branch_tree_list)
             println("Computing transients distribution associated to attractor $bi")
             dists = Integer[]
