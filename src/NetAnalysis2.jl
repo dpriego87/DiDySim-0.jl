@@ -1,12 +1,5 @@
-import GZip
-using GraphIO
-using StatsBase
-using IterTools
-using Combinatorics
-using LightGraphs
-using Formatting
 #derrida_map calculates derrida map for a net up to a  H hamming distance
-function derrida_map!{T<:state_type}(net::Net2{T},nrand_init::Int=prod([length(sigma.state_range) for sigma in net.nodes]);tau::Int=1,update_mode::Symbol=:sy,init_h::Symbol=:rand,Hmax::Int=sum(length(sigma.state_range)>1 for sigma in net.nodes)*(1 + (update_mode==:sy ? 0 : maximum(net.in_taus))))
+function derrida_map!(net::Net2{T},nrand_init::Int=prod([length(sigma.state_range) for sigma in net.nodes]);tau::Int=1,update_mode::Symbol=:sy,init_h::Symbol=:rand,Hmax::Int=sum(length(sigma.state_range)>1 for sigma in net.nodes)*(1 + (update_mode==:sy ? 0 : maximum(net.in_taus)))) where {T<:state_type}
     index_nodes_to_flip = find(sigma->length(sigma.state_range)>1,net.nodes)
     net_hist_size = 1 + (update_mode==:sy ? 0 : maximum(net.in_taus))
     Nmax = length(index_nodes_to_flip)*net_hist_size
@@ -61,7 +54,7 @@ function derrida_map!{T<:state_type}(net::Net2{T},nrand_init::Int=prod([length(s
     return reshape(Hmap,Hmax,nrand_init)
 end
 
-function derrida_map_mod!{T<:state_type}(netWT::Net2{T},nrand_init::Int=prod([length(sigma.state_range) for sigma in netWT.nodes]);mutants::Vector{Pair{String,Symbol}} = Vector{Pair{String,Symbol}}(),tau::Int=1,fix_targets::Bool=true,update_mode::Symbol=:sy,init_h::Symbol=:rand,Hmax::Int=sum([length(sigma.state_range)>1 for sigma in netWT.nodes]))
+function derrida_map_mod!(netWT::Net2{T},nrand_init::Int=prod([length(sigma.state_range) for sigma in netWT.nodes]);mutants::Vector{Pair{String,Symbol}} = Vector{Pair{String,Symbol}}(),tau::Int=1,fix_targets::Bool=true,update_mode::Symbol=:sy,init_h::Symbol=:rand,Hmax::Int=sum([length(sigma.state_range)>1 for sigma in netWT.nodes])) where {T<:state_type}
     netMT = deepcopy(netWT)
     for (id,pert) in mutants
         if pert == :KO
@@ -439,7 +432,7 @@ end
 
 # get_attractor finds attractors exploring multiple random initial conditions (nrand_init) within a simulation
 # time range limited by max_steps, after a transient given by transient_size
-function find_attractor!{T<:state_type}(net::Net2{T},transient_size::Integer,max_steps::Integer,nrand_init::Integer;update_mode::Symbol=:sy,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...)
+function find_attractor!(net::Net2{T},transient_size::Integer,max_steps::Integer,nrand_init::Integer;update_mode::Symbol=:sy,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...) where {T<:state_type}
     i = 0
     # tag_base = maximum([length(sigma.state_range) for sigma in net.nodes])
     net_hist_size = 1 + (update_mode==:sy ? 0 : maximum(net.in_taus))
@@ -526,7 +519,7 @@ function find_attractor!{T<:state_type}(net::Net2{T},transient_size::Integer,max
     return att_list
 end
 
-function find_attractor2!{T<:state_type}(net::Net2{T},max_steps::Integer,nrand_init::Integer;update_mode::Symbol=:sy,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...)
+function find_attractor2!(net::Net2{T},max_steps::Integer,nrand_init::Integer;update_mode::Symbol=:sy,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...) where {T<:state_type}
     i = 0
     # tag_base = maximum([length(sigma.state_range) for sigma in net.nodes])
     net_hist_size = 1 + (update_mode==:sy ? 0 : maximum(net.in_taus))
@@ -577,7 +570,7 @@ function find_attractor2!{T<:state_type}(net::Net2{T},max_steps::Integer,nrand_i
                     if !already_found
                         deleteat!(p_att,1:nti-1)
                         push!(att_list,p_att)
-                        push!(basin_sizes,init_probe in p_att?0:1)
+                        push!(basin_sizes,init_probe in p_att ? 0 : 1)
                         push!(transients,[nti-1])
                         println("Attractor ",size(att_list,1)," has period ",size(p_att,1))
                         for att_i in p_att

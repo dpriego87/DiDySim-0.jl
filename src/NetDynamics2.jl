@@ -1,5 +1,3 @@
-using StatsBase
-using GZip
 macro umode_labesl()
 	:(Dict(:sy=>"sync",:fd=>"delay",:md=>"mean_delay",:sd=>"strob",:smd=>"strob_delay",:ga=>"general_async",:roa=>"random_order_async",:ssy=>"semi_sync"))
 end
@@ -7,6 +5,7 @@ end
 macro update_schemes()
 	:(Dict(:sy=>:sy,:fd=>fixed_delay!,:md=>smoothed_fixed_delay!,:st=>strob!,:mst=>smoothed_strob!,:ga=>:ga,:roa=>:roa,:ssy=>semi_sync!))
 end
+
 function init_net!(net::Net2,node_indices::Vector{Int}=collect(vertices(net.graph));update_mode::Symbol=:sy,t0_mode::Symbol=:custom,init_h::Symbol=:last,init_array::Vector{Int}=Int[],init_constraints...)
 	allunique(node_indices) || error("Duplicate node indices")
 	intersect(vertices(net.graph),node_indices)==node_indices || error("Invalid node indices")
@@ -20,7 +19,7 @@ function init_net!(net::Net2,node_indices::Vector{Int}=collect(vertices(net.grap
 		intersect(ids,(sigma.id for sigma in net.nodes))==ids || error("Trying to set unexisting nodes:",ids)
 		all(i->i<:Union{Int,Bool,Vector{Int},Vector{Bool}},(typeof(state) for (id,state) in init_constraints)) || error("Wrong format to specify state")
 		push!(nodes_to_constraint,(findfirst([sigma.id for sigma in net.nodes],id) for id in ids)...)
-		all(map((x,y)->typeof(x)<:Vector?intersect(x,y)==x : intersect([x],y)==[x],(state for (id,state) in init_constraints),(sigma.state_range for sigma in net.nodes[nodes_to_constraint]))) || error("Trying to set node to a forbidden state")
+		all(map((x,y)->typeof(x) <: Vector ? intersect(x,y)==x : intersect([x],y)==[x],(state for (id,state) in init_constraints),(sigma.state_range for sigma in net.nodes[nodes_to_constraint]))) || error("Trying to set node to a forbidden state")
 		node_indices = setdiff(node_indices,nodes_to_constraint)
 		states = Vector{Vector{Int}}(length(init_constraints))
 		for (ni,nsigma) in enumerate(nodes_to_constraint)
@@ -113,7 +112,7 @@ function rand_init_net!(net::Net2,node_indices::Vector{Int}=collect(vertices(net
 		intersect(ids,(sigma.id for sigma in net.nodes))==ids || error("Trying to set unexisting node $(setdiff(ids,(sigma.id for sigma in net.nodes)))")
 		all(i->i<:Union{Int,Bool,Vector{Int},Vector{Bool}},(typeof(state) for (id,state) in init_constraints)) || error("Wrong format to specify state")
 		push!(nodes_to_constraint,(findfirst([sigma.id for sigma in net.nodes],id) for id in ids)...)
-		all(map((x,y)->typeof(x)<:Vector?intersect(x,y)==x : intersect([x],y)==[x],(state for (id,state) in init_constraints),(sigma.state_range for sigma in net.nodes[nodes_to_constraint]))) || error("Trying to set node to a forbidden state")
+		all(map((x,y)->typeof(x) <: Vector ? intersect(x,y)==x : intersect([x],y)==[x],(state for (id,state) in init_constraints),(sigma.state_range for sigma in net.nodes[nodes_to_constraint]))) || error("Trying to set node to a forbidden state")
 		node_indices = setdiff(node_indices,nodes_to_constraint)
 		states = Vector{Vector{Int}}(length(init_constraints))
 		for (ni,nsigma) in enumerate(nodes_to_constraint)
@@ -240,7 +239,7 @@ macro updating_scheme(x)
 	end)
 end
 
-function evolve_net!{T<:state_type}(net::Net2{T},steps::Int;keep::Bool=true,update_mode::Symbol=:sy,sim::Array{T,2}=Array{T}(nv(net.graph),steps + 1 + (update_mode == :sy ? 0 : maximum(net.in_taus))),t_init::Int=0,noise_vector::Vector{Pair{Symbol,Float64}}=Pair{Symbol,Float64}[],forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}())
+function evolve_net!(net::Net2{T},steps::Int;keep::Bool=true,update_mode::Symbol=:sy,sim::Array{T,2}=Array{T}(nv(net.graph),steps + 1 + (update_mode == :sy ? 0 : maximum(net.in_taus))),t_init::Int=0,noise_vector::Vector{Pair{Symbol,Float64}}=Pair{Symbol,Float64}[],forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}()) where {T<:state_type}
 	umodes = @update_schemes
 	haskey(umodes,update_mode) || error("Unexisting update scheme. Available schemes are :",keys(umodes))
 	steps>=0 || error("Steps must be a positive integer")
@@ -397,7 +396,7 @@ function smoothed_strob!(net::Net2,sim::sim_type,steps::Int,i_t0::Int,t_init::In
 	return nothing
 end
 
-function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{AbstractString,Int,Vector{String},Vector{Int}},nrand_init::Int=prod(length(sigma.state_range) for sigma in net.nodes);base_dir::AbstractString="",variant_name::AbstractString="",file_tag::AbstractString="",update_mode::Symbol=:sy,noise_vector::Vector{Pair{Symbol,Float64}}=Pair{Symbol,Float64}[],init_h::Symbol=:default,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...)
+function obs_rand_cond!(net::Net2{T},steps::Int,obs_node::Union{AbstractString,Int,Vector{String},Vector{Int}},nrand_init::Int=prod(length(sigma.state_range) for sigma in net.nodes);base_dir::AbstractString="",variant_name::AbstractString="",file_tag::AbstractString="",update_mode::Symbol=:sy,noise_vector::Vector{Pair{Symbol,Float64}}=Pair{Symbol,Float64}[],init_h::Symbol=:default,forcing_rhythms::Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}=Dict{Symbol,Tuple{Vector{Bool},Vector{Int}}}(),init_constraints...) where {T<:state_type}
 	Nsize = length(net.nodes)
 	dump_to_file = false
 	moment = now(Dates.UTC)
@@ -421,12 +420,12 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 	index_node_obs = Any[]
 	if typeof(obs_node) <: Vector
 		length(obs_node)!=0 || error("You must enter at least 1 node id or index")
-		index_node_obs = typeof(obs_node)<:Vector{Int}? obs_node :  collect(findfirst(sigma->sigma.id==x,net.nodes) for x in obs_node)
+		index_node_obs = typeof(obs_node) <: Vector{Int} ? obs_node : collect(findfirst(sigma->sigma.id==x,net.nodes) for x in obs_node)
 		for (i,x) in enumerate(obs_node)
 			0 < index_node_obs[i] <= Nsize || error("Unexisting node: $x")
 		end
 	else
-		index_node_obs = typeof(obs_node)<:Int? obs_node : findfirst(sigma->sigma.id==obs_node,net.nodes)
+		index_node_obs = typeof(obs_node) <: Int ? obs_node : findfirst(sigma->sigma.id==obs_node,net.nodes)
 		0 < index_node_obs <= Nsize || error("Unexisting node: $obs_node")
 	end
 	length_obs = length(index_node_obs)
@@ -494,7 +493,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				intersect(ids,(sigma.id for sigma in net.nodes))==ids || error("Trying to set unexisting node")
 				all(i->i<:Union{Int,Bool,Vector{Int},Vector{Bool}},(typeof(state) for (id,state) in init_constraints)) || error("Wrong format to specify state")
 				push!(nodes_to_constraint,(findfirst([sigma.id for sigma in net.nodes],id) for id in ids)...)
-				all(map((x,y)->typeof(x)<:Vector?intersect(x,y)==x : intersect([x],y)==[x],(state for (id,state) in init_constraints),(sigma.state_range for sigma in net.nodes[nodes_to_constraint]))) || error("Trying to set node to a forbidden state")
+				all(map((x,y)->typeof(x) <: Vector ? intersect(x,y)==x : intersect([x],y)==[x],(state for (id,state) in init_constraints),(sigma.state_range for sigma in net.nodes[nodes_to_constraint]))) || error("Trying to set node to a forbidden state")
 				node_indices = setdiff(node_indices,nodes_to_constraint)
 				states = Vector{Vector{Int}}(length(init_constraints))
 				for (ni,nsigma) in enumerate(nodes_to_constraint)
@@ -582,7 +581,7 @@ function obs_rand_cond!{T<:state_type}(net::Net2{T},steps::Int,obs_node::Union{A
 				intersect(ids,(sigma.id for sigma in net.nodes))==ids || error("Trying to set unexisting node")
 				all(i->i<:Union{Int,Bool,Vector{Int},Vector{Bool}},(typeof(state) for (id,state) in init_constraints)) || error("Wrong format to specify state")
 				push!(nodes_to_constraint,(findfirst([sigma.id for sigma in net.nodes],id) for id in ids)...)
-				all(map((x,y)->typeof(x)<:Vector?intersect(x,y)==x : intersect([x],y)==[x],(state for (id,state) in init_constraints),(sigma.state_range for sigma in net.nodes[nodes_to_constraint]))) || error("Trying to set node to a forbidden state")
+				all(map((x,y)->typeof(x) <: Vector ? intersect(x,y)==x : intersect([x],y)==[x],(state for (id,state) in init_constraints),(sigma.state_range for sigma in net.nodes[nodes_to_constraint]))) || error("Trying to set node to a forbidden state")
 				node_indices = setdiff(node_indices,nodes_to_constraint)
 				states = Vector{Vector{Int}}(length(init_constraints))
 				for (ni,nsigma) in enumerate(nodes_to_constraint)

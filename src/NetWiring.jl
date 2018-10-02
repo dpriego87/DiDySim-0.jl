@@ -1,6 +1,3 @@
-using LightGraphs
-using IterTools
-
 function load_net2(dir::AbstractString)
     nodeFfiles = readdir(dir)
     filter!(x->ismatch(r"\w+.txt$",x),nodeFfiles)
