@@ -4,8 +4,7 @@ module DiDySim
     include("types.jl")
     #include("NetWiring.jl")
     include("NetWiring2.jl")
-    #include("NetDynamics.jl")
-    include("NetDynamics2.jl")
+    include("NetDynamics.jl")
     #include("NetAnalysis.jl")
     include("NetAnalysis2.jl")
     export BNode,Net,BNode2,Net2,reg_function

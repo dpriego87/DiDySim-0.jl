@@ -1,7 +1,9 @@
-julia 0.6
+julia 0.7
 IterTools
 StatsBase
 LightGraphs
 GraphIO
 GZip
 Formatting
+Printf
+SparseArrays
